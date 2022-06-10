@@ -65,7 +65,7 @@ class Nodule_classifier:
 
         self.model = CustomResnet3DBuilder.build_resnet_18((1, 64, 64, 64), 3)
         self.model.load_weights(
-            "/opt/algorithm/models/resnet_malignancy_best_type_val_accuracy.h5",
+            "/opt/algorithm/models/dense_model_noduletype_best_val_accuracy.h5",
             by_name=True,
             skip_mismatch=True,
         )

@@ -96,14 +96,14 @@ class CustomResnet3DBuilder:
                                             block.shape[DIM3_AXIS]),
                                  strides=(1, 1, 1))(block_output)
         flatten1 = Flatten()(pool2)
-        nodule_type = Dense(units=num_outputs,
-                            kernel_initializer="he_normal",
-                            name="type_classification",
-                            activation="softmax")(flatten1)
         malignancy = Dense(units=2,
                            kernel_initializer="he_normal",
                            name="malignancy_regression",
                            activation="softmax")(flatten1)
+        nodule_type = Dense(units=num_outputs,
+                            kernel_initializer="he_normal",
+                            name="type_classification",
+                            activation="softmax")(tensorflow.concat([flatten1, malignancy], 1))
 
         model = Model(inputs=input, outputs=[malignancy, nodule_type])
         return model
