@@ -66,8 +66,8 @@ class Nodule_classifier:
         self.model = CustomResnet3DBuilder.build_resnet_18((1, 64, 64, 64), 3)
         self.model.summary()
         self.model.load_weights(
-            # "/opt/algorithm/models/resnet_noduletype_best_type_val_accuracy.h5",
-            "D:\\temp\pushfolder\cassubmit\\bodyct-luna22-ismi-algorithm-baseline\models\\resnet_noduletype_best_type_val_accuracy.h5",
+            "/opt/algorithm/models/resnet_noduletype_best_type_val_accuracy.h5",
+            # "D:\\temp\pushfolder\cassubmit\\bodyct-luna22-ismi-algorithm-baseline\models\\resnet_noduletype_best_type_val_accuracy.h5",
             by_name=True,
             skip_mismatch=True,
         )
@@ -76,8 +76,8 @@ class Nodule_classifier:
 
     def load_image(self) -> SimpleITK.Image:
 
-        ct_image_path = list(Path("D:\\temp\pushfolder\cassubmit\\bodyct-luna22-ismi-algorithm-baseline\\test\images\ct").glob("*"))[0]
-        # ct_image_path = list(Path("/input/images/ct/").glob("*"))[0]
+        # ct_image_path = list(Path("D:\\temp\pushfolder\cassubmit\\bodyct-luna22-ismi-algorithm-baseline\\test\images\ct").glob("*"))[0]
+        ct_image_path = list(Path("/input/images/ct/").glob("*"))[0]
 
         image = SimpleITK.ReadImage(str(ct_image_path))
 
