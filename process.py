@@ -64,8 +64,10 @@ class Nodule_classifier:
         self.input_spacing = 1.0
 
         self.model = CustomResnet3DBuilder.build_resnet_18((1, 64, 64, 64), 3)
+        self.model.summary()
         self.model.load_weights(
-            "/opt/algorithm/models/resnet_noduletype_best_type_val_accuracy.h5",
+            # "/opt/algorithm/models/resnet_noduletype_best_type_val_accuracy.h5",
+            "D:\\temp\pushfolder\cassubmit\\bodyct-luna22-ismi-algorithm-baseline\models\\resnet_noduletype_best_type_val_accuracy.h5",
             by_name=True,
             skip_mismatch=True,
         )
@@ -74,7 +76,9 @@ class Nodule_classifier:
 
     def load_image(self) -> SimpleITK.Image:
 
-        ct_image_path = list(Path("/input/images/ct/").glob("*"))[0]
+        ct_image_path = list(Path("D:\\temp\pushfolder\cassubmit\\bodyct-luna22-ismi-algorithm-baseline\\test\images\ct").glob("*"))[0]
+        # ct_image_path = list(Path("/input/images/ct/").glob("*"))[0]
+
         image = SimpleITK.ReadImage(str(ct_image_path))
 
         return image
@@ -166,9 +170,6 @@ class Nodule_classifier:
         result = self.predict(image)
         self.write_outputs(result)
 
-"""
-ResNet code
-"""
 class CustomResnet3DBuilder:
     @staticmethod
     def build(input_shape, num_outputs, block_fn, repetitions, reg_factor):
@@ -222,14 +223,14 @@ class CustomResnet3DBuilder:
                                             block.shape[DIM3_AXIS]),
                                  strides=(1, 1, 1))(block_output)
         flatten1 = Flatten()(pool2)
-        nodule_type = Dense(units=num_outputs,
-                            kernel_initializer="he_normal",
-                            name="type_classification",
-                            activation="softmax")(flatten1)
         malignancy = Dense(units=2,
                            kernel_initializer="he_normal",
                            name="malignancy_regression",
                            activation="softmax")(flatten1)
+        nodule_type = Dense(units=num_outputs,
+                            kernel_initializer="he_normal",
+                            name="type_classification",
+                            activation="softmax")(tensorflow.concat([flatten1, malignancy], 1))
 
         model = Model(inputs=input, outputs=[malignancy, nodule_type])
         return model
@@ -238,31 +239,31 @@ class CustomResnet3DBuilder:
     def build_resnet_18(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 18."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, basic_block,
-                                     [2, 2, 2, 2], reg_factor=reg_factor)
+                                           [2, 2, 2, 2], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_34(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 34."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, basic_block,
-                                     [3, 4, 6, 3], reg_factor=reg_factor)
+                                           [3, 4, 6, 3], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_50(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 50."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, bottleneck,
-                                     [3, 4, 6, 3], reg_factor=reg_factor)
+                                           [3, 4, 6, 3], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_101(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 101."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, bottleneck,
-                                     [3, 4, 23, 3], reg_factor=reg_factor)
+                                           [3, 4, 23, 3], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_152(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 152."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, bottleneck,
-                                     [3, 8, 36, 3], reg_factor=reg_factor)
+                                           [3, 8, 36, 3], reg_factor=reg_factor)
 
 
 def _bn_relu(input):
