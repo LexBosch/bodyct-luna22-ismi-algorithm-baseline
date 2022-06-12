@@ -169,6 +169,7 @@ class Nodule_classifier:
 """
 ResNet code
 """
+
 class CustomResnet3DBuilder:
     @staticmethod
     def build(input_shape, num_outputs, block_fn, repetitions, reg_factor):
@@ -222,14 +223,14 @@ class CustomResnet3DBuilder:
                                             block.shape[DIM3_AXIS]),
                                  strides=(1, 1, 1))(block_output)
         flatten1 = Flatten()(pool2)
-        nodule_type = Dense(units=num_outputs,
-                            kernel_initializer="he_normal",
-                            name="type_classification",
-                            activation="softmax")(flatten1)
         malignancy = Dense(units=2,
                            kernel_initializer="he_normal",
                            name="malignancy_regression",
                            activation="softmax")(flatten1)
+        nodule_type = Dense(units=num_outputs,
+                            kernel_initializer="he_normal",
+                            name="type_classification",
+                            activation="softmax")(tensorflow.concat([flatten1, malignancy], 1))
 
         model = Model(inputs=input, outputs=[malignancy, nodule_type])
         return model
@@ -238,31 +239,31 @@ class CustomResnet3DBuilder:
     def build_resnet_18(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 18."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, basic_block,
-                                     [2, 2, 2, 2], reg_factor=reg_factor)
+                                           [2, 2, 2, 2], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_34(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 34."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, basic_block,
-                                     [3, 4, 6, 3], reg_factor=reg_factor)
+                                           [3, 4, 6, 3], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_50(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 50."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, bottleneck,
-                                     [3, 4, 6, 3], reg_factor=reg_factor)
+                                           [3, 4, 6, 3], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_101(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 101."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, bottleneck,
-                                     [3, 4, 23, 3], reg_factor=reg_factor)
+                                           [3, 4, 23, 3], reg_factor=reg_factor)
 
     @staticmethod
     def build_resnet_152(input_shape, num_outputs, reg_factor=1e-4):
         """Build resnet 152."""
         return CustomResnet3DBuilder.build(input_shape, num_outputs, bottleneck,
-                                     [3, 8, 36, 3], reg_factor=reg_factor)
+                                           [3, 8, 36, 3], reg_factor=reg_factor)
 
 
 def _bn_relu(input):
@@ -434,6 +435,7 @@ def _get_block(identifier):
             raise ValueError('Invalid {}'.format(identifier))
         return res
     return identifier
+
 
 
 if __name__ == "__main__":
